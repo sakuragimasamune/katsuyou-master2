@@ -1,0 +1,623 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#0a0a1a">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="活用マスター 第二章">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" type="image/svg+xml" href="icon.svg">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<title>活用マスター 第二章！</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Dela+Gothic+One&family=Zen+Maru+Gothic:wght@400;700&family=Bungee+Shade&display=swap');
+:root{--bg:#0a0a1a;--card-bg:#14142b;--accent:#ff3d6a;--accent2:#ffb800;--correct:#00e676;--wrong:#ff1744;--text:#e8e8f0;--text-dim:#8888aa;--glow:0 0 20px rgba(255,61,106,0.4);}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Zen Maru Gothic',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden;user-select:none;-webkit-user-select:none;}
+
+#menu{min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:2rem 1.5rem 3rem;}
+.menu-title{font-family:'Dela Gothic One',cursive;font-size:clamp(2rem,6vw,3.5rem);background:linear-gradient(135deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-top:1.5rem;margin-bottom:0.2rem;animation:titlePulse 2s ease-in-out infinite;text-align:center;line-height:1.1;}
+.menu-chapter{font-family:'Dela Gothic One',cursive;font-size:clamp(1rem,3vw,1.4rem);color:#ce93d8;letter-spacing:4px;margin-bottom:0.3rem;text-shadow:0 0 15px rgba(206,147,216,0.4);}
+@keyframes titlePulse{0%,100%{filter:brightness(1);transform:scale(1);}50%{filter:brightness(1.2);transform:scale(1.03);}}
+.menu-sub{color:var(--text-dim);margin-bottom:1.5rem;font-size:0.95rem;}
+.section-header{font-family:'Dela Gothic One',cursive;font-size:0.8rem;letter-spacing:2px;margin-top:1.5rem;margin-bottom:0.6rem;width:100%;max-width:420px;}
+.section-header.vn-h{color:#ce93d8;}.section-header.train-h{color:#40c4ff;}
+.level-list{display:flex;flex-direction:column;gap:0.6rem;width:100%;max-width:420px;}
+.level-btn{background:var(--card-bg);border:2px solid #2a2a4a;border-radius:16px;padding:1rem 1.2rem;color:var(--text);font-family:'Zen Maru Gothic',sans-serif;font-size:1rem;font-weight:700;cursor:pointer;transition:all 0.2s;text-align:left;position:relative;overflow:hidden;}
+.level-btn::before{content:'';position:absolute;left:0;top:0;bottom:0;width:4px;border-radius:4px 0 0 4px;}
+.level-btn.vn::before{background:linear-gradient(180deg,#ce93d8,#7c4dff);}
+.level-btn.training::before{background:linear-gradient(180deg,#448aff,#40c4ff);}
+.level-btn:hover,.level-btn:active{border-color:var(--accent);transform:translateX(6px);box-shadow:var(--glow);}
+.level-btn .level-label{font-family:'Dela Gothic One',cursive;font-size:0.7rem;display:block;margin-bottom:3px;}
+.level-btn.vn .level-label{color:#ce93d8;}.level-btn.training .level-label{color:#40c4ff;}
+.level-btn.locked{opacity:0.35;pointer-events:none;border-color:#1a1a2a;}
+.level-btn.locked::after{content:'🔒';position:absolute;right:1rem;top:50%;transform:translateY(-50%);font-size:1.2rem;}
+.unlock-bar{display:flex;gap:0.6rem;justify-content:center;margin-bottom:1rem;flex-wrap:wrap;}
+.unlock-btn{background:none;border:1px solid #2a2a4a;color:var(--text-dim);padding:0.4rem 1rem;border-radius:50px;cursor:pointer;font-family:'Zen Maru Gothic',sans-serif;font-size:0.75rem;transition:all 0.2s;}
+.unlock-btn:active{transform:scale(0.95);}
+.back-btn{position:absolute;top:1rem;left:1rem;background:none;border:1px solid #2a2a4a;color:var(--text-dim);padding:0.4rem 0.8rem;border-radius:8px;cursor:pointer;font-family:'Zen Maru Gothic',sans-serif;font-size:0.85rem;z-index:10;}
+
+/* ===== VISUAL NOVEL ===== */
+#vn{display:none;position:fixed;inset:0;z-index:60;background:linear-gradient(180deg,#0d0d2b 0%,#1a0a2e 50%,#0a0a1a 100%);flex-direction:column;}
+.vn-scene{flex:1;display:flex;flex-direction:column;justify-content:flex-end;padding:0 1rem 0;position:relative;min-height:0;}
+.vn-chara{position:absolute;bottom:35%;left:50%;transform:translateX(-50%);text-align:center;}
+.vn-chara-icon{font-size:4rem;animation:vnCharaBob 3s ease-in-out infinite;}
+@keyframes vnCharaBob{0%,100%{transform:translateY(0);}50%{transform:translateY(-8px);}}
+.vn-board{position:absolute;top:10%;left:50%;transform:translateX(-50%);background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.15);border-radius:16px;padding:1.2rem 1.5rem;max-width:90%;width:500px;text-align:center;min-height:60px;display:flex;align-items:center;justify-content:center;}
+.vn-board-text{font-family:'Dela Gothic One',cursive;font-size:clamp(0.9rem,2.8vw,1.3rem);color:var(--accent2);line-height:1.8;white-space:pre-line;}
+.vn-dialog{background:rgba(0,0,0,0.78);border-top:2px solid #3a3a5a;padding:1.2rem 1.5rem 1.8rem;min-height:160px;max-height:80vh;overflow-y:auto;position:relative;cursor:pointer;max-width:800px;margin:0 auto;width:100%;}
+.vn-speaker{font-family:'Dela Gothic One',cursive;font-size:0.8rem;margin-bottom:0.4rem;letter-spacing:1px;}
+.vn-speaker.sakuragi{color:#ce93d8;}
+.vn-speaker.narrator{color:var(--text-dim);}
+.vn-text{font-size:clamp(0.95rem,2.5vw,1.25rem);line-height:1.9;color:var(--text);min-height:3em;}
+.vn-tap-hint{position:sticky;bottom:0;float:right;font-size:0.65rem;color:var(--text-dim);animation:vnBlink 1.5s infinite;margin-top:0.3rem;}
+@keyframes vnBlink{0%,100%{opacity:0.3;}50%{opacity:1;}}
+.vn-progress{position:absolute;bottom:0;left:0;height:3px;background:linear-gradient(90deg,#ce93d8,#7c4dff);transition:width 0.3s;}
+.vn-passage{background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.15);border-radius:10px;padding:0.8rem 1rem;text-align:center;font-size:clamp(1.1rem,3.2vw,1.4rem);margin-bottom:0.7rem;line-height:1.5;}
+.vn-passage .target{color:var(--accent);font-weight:700;background:rgba(255,61,106,0.15);padding:0 0.25em;border-radius:4px;}
+
+/* ===== 第二章クイズ（共通） ===== */
+#ch2{display:none;min-height:100vh;flex-direction:column;padding:1rem;}
+.ch2-header{text-align:center;padding:1rem 0 0.5rem;}
+.ch2-tag{font-size:0.75rem;color:var(--text-dim);}
+.ch2-progress{font-family:'Dela Gothic One',cursive;font-size:0.95rem;color:var(--accent2);margin-top:0.2rem;}
+.ch2-passage{background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.15);border-radius:14px;padding:1.2rem 1rem;text-align:center;font-size:clamp(1.2rem,4vw,1.7rem);margin:1rem auto;max-width:600px;line-height:1.6;}
+.ch2-passage .target{color:var(--accent);font-weight:700;background:rgba(255,61,106,0.15);padding:0.1em 0.3em;border-radius:6px;}
+.ch2-step-label{font-family:'Dela Gothic One',cursive;font-size:clamp(1rem,3vw,1.3rem);color:var(--accent2);text-align:center;margin-bottom:0.6rem;animation:missionFlash 0.4s;}
+@keyframes missionFlash{0%{opacity:0;transform:scale(1.3);}100%{opacity:1;transform:scale(1);}}
+.ch2-options{display:grid;grid-template-columns:repeat(auto-fit,minmax(80px,1fr));gap:0.5rem;max-width:600px;margin:0 auto 1rem;}
+.ch2-options.t-form{grid-template-columns:repeat(3,1fr);max-width:400px;}
+.ch2-options.t-type{grid-template-columns:repeat(3,1fr);max-width:400px;}
+.ch2-opt{background:var(--card-bg);border:2px solid #2a2a4a;color:var(--text);padding:0.7rem 0.4rem;border-radius:10px;cursor:pointer;font-family:'Zen Maru Gothic',sans-serif;font-weight:700;font-size:clamp(0.85rem,2.5vw,1.05rem);transition:all 0.15s;}
+.ch2-opt:active{transform:scale(0.93);}
+.ch2-opt.ch2-ok{border-color:var(--correct);background:rgba(0,230,118,0.2);color:var(--correct);}
+.ch2-opt.ch2-ng{border-color:var(--wrong);background:rgba(255,23,68,0.2);color:var(--wrong);}
+.ch2-answered{display:flex;justify-content:center;gap:0.5rem;flex-wrap:wrap;margin-bottom:0.6rem;}
+.ch2-pill{background:rgba(255,255,255,0.05);border:1px solid #3a3a5a;padding:0.25rem 0.7rem;border-radius:20px;font-size:0.8rem;}
+.ch2-pill.ok{border-color:var(--correct);color:var(--correct);}
+.ch2-pill.ng{border-color:var(--wrong);color:var(--wrong);}
+
+.ch2-listen{display:block;margin:1rem auto;background:linear-gradient(135deg,#ce93d8,#7c4dff);color:#fff;padding:0.9rem 2.2rem;border:none;border-radius:50px;cursor:pointer;font-family:'Dela Gothic One',cursive;font-size:1.05rem;letter-spacing:2px;box-shadow:0 4px 20px rgba(206,147,216,0.3);animation:listenPulse 1.5s ease-in-out infinite;}
+.ch2-listen:active{transform:scale(0.95);}
+@keyframes listenPulse{0%,100%{box-shadow:0 4px 20px rgba(206,147,216,0.3);}50%{box-shadow:0 4px 30px rgba(206,147,216,0.6);}}
+
+/* ===== 解説パネル ===== */
+.q3-expl{background:rgba(255,184,0,0.07);border:1px solid rgba(255,184,0,0.25);border-radius:14px;padding:1rem 1.1rem;margin:0.8rem auto;max-width:540px;text-align:left;animation:explIn 0.35s ease-out;}
+@keyframes explIn{0%{opacity:0;transform:translateY(8px);}100%{opacity:1;transform:translateY(0);}}
+.q3-commentary{font-size:clamp(0.9rem,2.4vw,1.05rem);line-height:1.95;color:var(--text);margin-bottom:0.8rem;padding-bottom:0.8rem;border-bottom:1px dashed rgba(255,255,255,0.18);}
+.q3-memo{font-family:'Zen Maru Gothic',sans-serif;font-weight:700;}
+.q3-memo-line{font-size:clamp(0.95rem,2.5vw,1.1rem);line-height:2;color:var(--text);padding:0.15rem 0.2rem;border-left:3px solid rgba(255,184,0,0.35);padding-left:0.7rem;margin-bottom:0.25rem;}
+.q3-memo-line .arrow{color:var(--accent2);font-weight:700;padding:0 0.15em;}
+.q3-memo-line .concl{color:var(--accent);font-family:'Dela Gothic One',cursive;font-size:0.95em;letter-spacing:1px;}
+.q3-answer{margin-top:0.9rem;text-align:center;color:var(--correct);font-family:'Dela Gothic One',cursive;font-size:clamp(1.1rem,3.2vw,1.4rem);letter-spacing:2px;padding:0.5rem;background:rgba(0,230,118,0.08);border-radius:10px;}
+
+.ch2-next{display:block;margin:0.8rem auto;background:linear-gradient(135deg,var(--accent),#ff6b3d);color:#fff;padding:0.7rem 2rem;border:none;border-radius:50px;cursor:pointer;font-family:'Dela Gothic One',cursive;font-size:1.05rem;letter-spacing:2px;}
+.ch2-next:active{transform:scale(0.95);}
+.ch2-final{text-align:center;padding:2rem 1rem;}
+
+.result-buttons{display:flex;gap:0.8rem;justify-content:center;flex-wrap:wrap;margin-top:1rem;}
+.result-btn{font-family:'Zen Maru Gothic',sans-serif;font-weight:700;font-size:0.95rem;padding:0.7rem 1.8rem;border-radius:50px;cursor:pointer;border:none;transition:all 0.2s;}
+.result-btn.retry{background:linear-gradient(135deg,var(--accent),#ff6b3d);color:#fff;}
+.result-btn.menu{background:transparent;border:2px solid #3a3a5a;color:var(--text);}
+.result-btn:active{transform:scale(0.95);}
+
+.confetti-piece{position:fixed;z-index:151;pointer-events:none;}
+.bg-particle{position:fixed;border-radius:50%;pointer-events:none;opacity:0.08;background:var(--accent);animation:floatP 15s infinite linear;}
+@keyframes floatP{0%{transform:translateY(100vh);opacity:0;}10%{opacity:0.08;}90%{opacity:0.08;}100%{transform:translateY(-100px);opacity:0;}}
+</style>
+</head>
+<body>
+<div id="bg-particles"></div>
+<div id="menu">
+  <div class="menu-chapter">CHAPTER 2</div>
+  <div class="menu-title">活用マスター 第二章</div>
+  <div class="menu-sub">行・種類・活用形、三段階で当てろ！</div>
+  <div id="menu-content"></div>
+</div>
+<div id="vn"><button class="back-btn" onclick="exitVN()">◁ もどる</button><button class="back-btn" style="left:auto;right:1rem" onclick="vnPrev()">◁ 一つ前へ</button><div class="vn-scene"><div class="vn-board" id="vn-board" style="display:none"><div class="vn-board-text" id="vn-board-text"></div></div><div class="vn-chara" id="vn-chara"></div></div><div class="vn-dialog" id="vn-dialog" onclick="vnNext()"><div class="vn-speaker" id="vn-speaker"></div><div class="vn-text" id="vn-text"></div><div class="vn-tap-hint">▼ タップで進む</div><div class="vn-progress" id="vn-progress"></div></div></div>
+<div id="ch2"><button class="back-btn" onclick="exitCh2()">◁ もどる</button><div class="ch2-header"><div class="ch2-tag" id="ch2-tag"></div><div class="ch2-progress" id="ch2-progress"></div></div><div id="ch2-body"></div></div>
+
+<script>
+// ===== SOUND =====
+const AC=window.AudioContext||window.webkitAudioContext;let actx=null;
+function ga(){if(!actx)actx=new AC();return actx;}
+function playOK(){const c=ga();[784,988,1175,1319,1568].forEach((f,i)=>{const o=c.createOscillator(),g=c.createGain();o.type='sine';o.frequency.value=f;g.gain.setValueAtTime(0.3,c.currentTime+i*0.1);g.gain.exponentialRampToValueAtTime(0.01,c.currentTime+i*0.1+0.25);o.connect(g);g.connect(c.destination);o.start(c.currentTime+i*0.1);o.stop(c.currentTime+i*0.1+0.3);});}
+function playNG(){const c=ga();const o=c.createOscillator(),g=c.createGain();o.type='sawtooth';o.frequency.setValueAtTime(400,c.currentTime);o.frequency.exponentialRampToValueAtTime(80,c.currentTime+0.8);g.gain.setValueAtTime(0.25,c.currentTime);g.gain.exponentialRampToValueAtTime(0.01,c.currentTime+0.8);o.connect(g);g.connect(c.destination);o.start(c.currentTime);o.stop(c.currentTime+0.9);}
+function playPing(){const c=ga(),o=c.createOscillator(),g=c.createGain();o.type='sine';o.frequency.value=1200;g.gain.setValueAtTime(0.2,c.currentTime);g.gain.exponentialRampToValueAtTime(0.01,c.currentTime+0.15);o.connect(g);g.connect(c.destination);o.start(c.currentTime);o.stop(c.currentTime+0.2);}
+function playBuzz(){const c=ga(),o=c.createOscillator(),g=c.createGain();o.type='square';o.frequency.value=150;g.gain.setValueAtTime(0.2,c.currentTime);g.gain.exponentialRampToValueAtTime(0.01,c.currentTime+0.2);o.connect(g);g.connect(c.destination);o.start(c.currentTime);o.stop(c.currentTime+0.25);}
+
+const GYOU_OPTS=["ア行","カ行","ガ行","サ行","ザ行","タ行","ダ行","ナ行","ハ行","バ行","マ行","ヤ行","ラ行","ワ行"];
+const TYPE_OPTS=["四段","上一段","上二段","下一段","下二段","カ変","サ変","ナ変","ラ変"];
+const FORM_OPTS=["未然形","連用形","終止形","連体形","已然形","命令形"];
+
+// ===== 第二章 第一部 問題データ =====
+// p: 本文, g/ty/f: 正解, c: 解説コメンタリー(null可), m: 解説メモ行, a: 答え
+var CH2_Q1=[
+// 1
+{p:"<span class='target'>言ひ</span>けるを",g:"ハ行",ty:"四段",f:"連用形",c:null,m:["覚えたリストにない！","言はナイ → 四段","は/ひ/ふ/ふ/へ/へ","「ひ」は１つしかない → 連用形"],a:"ハ行四段・連用形"},
+// 2
+{p:"かいもちひ<span class='target'>せ</span>む",g:"サ行",ty:"サ変",f:"未然形",c:null,m:["覚えたリストにある！（「す」）","せ/し/す/する/すれ/せよ","「せ」は１つしかない → 未然形"],a:"サ変・未然形"},
+// 3
+{p:"<span class='target'>聞き</span>けり",g:"カ行",ty:"四段",f:"連用形",c:null,m:["覚えたリストにない！","聞かナイ → 四段","か/き/く/く/け/け","「き」は１つしかない → 連用形"],a:"カ行四段・連用形"},
+// 4
+{p:"<span class='target'>しいださ</span>む",g:"サ行",ty:"四段",f:"未然形",c:null,m:["覚えたリストにない！","しいださナイ → 四段","さ/し/す/す/せ/せ","「さ」は１つしかない → 未然形"],a:"サ行四段・未然形"},
+// 5
+{p:"<span class='target'>待ち</span>て",g:"タ行",ty:"四段",f:"連用形",c:null,m:["覚えたリストにない！","待たナイ → 四段","た/ち/つ/つ/て/て","「ち」は１つしかない → 連用形"],a:"タ行四段・連用形"},
+// 6
+{p:"<span class='target'>思ひ</span>て",g:"ハ行",ty:"四段",f:"連用形",c:null,m:["覚えたリストにない！","思はナイ → 四段","は/ひ/ふ/ふ/へ/へ","「ひ」は１つしかない → 連用形"],a:"ハ行四段・連用形"},
+// 7
+{p:"<span class='target'>寄り</span>て",g:"ラ行",ty:"四段",f:"連用形",c:"もうわかったかもしれないが、ショートカットを教える。「て」の上は連用形だ。知っとくと活用表書かなくても答えられる。便利だろ？",m:["覚えたリストにない！","寄らナイ → 四段","ら/り/る/る/れ/れ","「り」は１つしかない → 連用形","（または「て」の上 → 連用形で一発）"],a:"ラ行四段・連用形"},
+// 8
+{p:"<span class='target'>いでくる</span>を待ちけるに",g:"カ行",ty:"カ変",f:"連体形",c:"「いづ」と「く」の複合動詞だ。複合動詞は上の活用の種類は無視しろ。下だけ見るんだ、つまりこの場合は「く」だ。",m:["複合動詞「いづ＋く」→「く」","覚えたリストにある！（カ変）","こ/き/く/くる/くれ/こ・こよ","「くる」は１つしかない → 連体形"],a:"カ変・連体形"},
+// 9
+{p:"いでくるを<span class='target'>待ち</span>けるに",g:"タ行",ty:"四段",f:"連用形",c:null,m:["覚えたリストにない！","待たナイ → 四段","た/ち/つ/つ/て/て","「ち」は１つしかない → 連用形","（「けり」の上 → 連用形で一発）"],a:"タ行四段・連用形"},
+// 10
+{p:"<span class='target'>しいだし</span>たるさまにて",g:"サ行",ty:"四段",f:"連用形",c:"「す」と「いだす」が合体した複合動詞だ。複合動詞はくっついた下の方だけ見ろ。この場合は「いだす」だ。",m:["複合動詞「す＋いだす」→「いだす」","覚えたリストにない！","いださナイ → 四段","さ/し/す/す/せ/せ","「し」は１つしかない → 連用形","（「たり」の上 → 連用形で一発）"],a:"サ行四段・連用形"},
+// 11
+{p:"<span class='target'>ひしめきあひ</span>たり",g:"ハ行",ty:"四段",f:"連用形",c:null,m:["複合動詞「ひしめく＋あふ」→「あふ」","覚えたリストにない！","あはナイ → 四段","は/ひ/ふ/ふ/へ/へ","「ひ」は１つしかない → 連用形"],a:"ハ行四段・連用形"},
+// 12
+{p:"<span class='target'>おどろかさ</span>むずらむ",g:"サ行",ty:"四段",f:"未然形",c:null,m:["覚えたリストにない！","おどろかさナイ → 四段","さ/し/す/す/せ/せ","「さ」は１つしかない → 未然形"],a:"サ行四段・未然形"},
+// 13
+{p:"<span class='target'>もの申し</span>さぶらはむ",g:"サ行",ty:"四段",f:"連用形",c:null,m:["覚えたリストにない！","もの申さナイ → 四段","さ/し/す/す/せ/せ","「し」は１つしかない → 連用形"],a:"サ行四段・連用形"},
+// 14
+{p:"もの申し<span class='target'>さぶらは</span>む",g:"ハ行",ty:"四段",f:"未然形",c:null,m:["覚えたリストにない！","さぶらはナイ → 四段","は/ひ/ふ/ふ/へ/へ","「は」は１つしかない → 未然形","（「む」の上 → 未然形で一発）"],a:"ハ行四段・未然形"},
+// 15
+{p:"<span class='target'>おどろか</span>せたまへ",g:"カ行",ty:"四段",f:"未然形",c:null,m:["覚えたリストにない！","おどろかナイ → 四段","か/き/く/く/け/け","「か」は１つしかない → 未然形"],a:"カ行四段・未然形"},
+// 16
+{p:"<span class='target'>待ち</span>けるか",g:"タ行",ty:"四段",f:"連用形",c:null,m:["覚えたリストにない！","待たナイ → 四段","た/ち/つ/つ/て/て","「ち」は１つしかない → 連用形","（「けり」の上 → 連用形で一発）"],a:"タ行四段・連用形"},
+// 17
+{p:"<span class='target'>呼ば</span>れて",g:"バ行",ty:"四段",f:"未然形",c:null,m:["覚えたリストにない！","呼ばナイ → 四段","ば/び/ぶ/ぶ/べ/べ","「ば」は１つしかない → 未然形"],a:"バ行四段・未然形"},
+// 18
+{p:"<span class='target'>念じ</span>て",g:"サ行",ty:"サ変",f:"連用形",c:"初見殺しだな。実は「念」＋「す」が濁って「念ず」になってる。つまりサ変だ。ザ変？ そんなものはない。ただ濁っただけであくまでサ変だ。活用表も例外的に濁って書くから「なんだこりゃ」ってなるやつだぞ。",m:["覚えたリストにある！（「念」＋濁った「す」＝サ変）","ぜ/じ/ず/ずる/ずれ/ぜよ","「じ」は２番目 → 連用形"],a:"サ変・連用形"},
+// 19
+{p:"な<span class='target'>起こし</span>たてまつりそ",g:"サ行",ty:"四段",f:"連用形",c:null,m:["覚えたリストにない！","起こさナイ → 四段","さ/し/す/す/せ/せ","「し」は１つしかない → 連用形"],a:"サ行四段・連用形"},
+// 20
+{p:"な起こし<span class='target'>たてまつり</span>そ",g:"ラ行",ty:"四段",f:"連用形",c:null,m:["覚えたリストにない！","たてまつらナイ → 四段","ら/り/る/る/れ/れ","「り」は１つしかない → 連用形"],a:"ラ行四段・連用形"},
+// 21
+{p:"<span class='target'>寝入り</span>たまひにけり",g:"ラ行",ty:"四段",f:"連用形",c:"「いる」の音が入っているがこれは例外で「いらナイ」だ。覚えたリストにはないんだ。寝入らナイでア段、四段だ。",m:["「いる」の音だが例外！","覚えたリストにない","寝入らナイ → 四段","ら/り/る/る/れ/れ","「り」は１つしかない → 連用形"],a:"ラ行四段・連用形"},
+// 22
+{p:"<span class='target'>たまひ</span>にけり",g:"ハ行",ty:"四段",f:"連用形",c:null,m:["覚えたリストにない！","たまはナイ → 四段","は/ひ/ふ/ふ/へ/へ","「ひ」は１つしかない → 連用形"],a:"ハ行四段・連用形"},
+// 23
+{p:"<span class='target'>し</span>ければ",g:"サ行",ty:"サ変",f:"連用形",c:null,m:["覚えたリストにある！（「す」）","せ/し/す/する/すれ/せよ","「し」は１つしかない → 連用形"],a:"サ変・連用形"},
+// 24
+{p:"<span class='target'>思ひ</span>て",g:"ハ行",ty:"四段",f:"連用形",c:null,m:["覚えたリストにない！","思はナイ → 四段","は/ひ/ふ/ふ/へ/へ","「ひ」は１つしかない → 連用形","（「て」の上 → 連用形で一発）"],a:"ハ行四段・連用形"},
+// 25
+{p:"<span class='target'>食ひ</span>に食ふ音",g:"ハ行",ty:"四段",f:"連用形",c:null,m:["覚えたリストにない！","食はナイ → 四段","は/ひ/ふ/ふ/へ/へ","「ひ」は１つしかない → 連用形"],a:"ハ行四段・連用形"},
+// 26
+{p:"<span class='target'>し</span>ければ",g:"サ行",ty:"サ変",f:"連用形",c:null,m:["覚えたリストにある！（「す」）","せ/し/す/する/すれ/せよ","「し」は１つしかない → 連用形"],a:"サ変・連用形"},
+];
+
+// ===== 第二章 第二部 問題データ =====
+var CH2_Q2=[
+// 1
+{p:"<span class='target'>あり</span>けり",g:"ラ行",ty:"ラ変",f:"連用形",c:"まずは「けり」の上だ。「あり」は覚えたリストのラ変だな。",m:["覚えたリストにある！（ラ変）","ら/り/り/る/れ/れ","「り」は２つ（連用 or 終止）… どっちだ？","「けり」の上 → 連用形！"],a:"ラ変・連用形"},
+// 2
+{p:"<span class='target'>寝</span>ざらむも",g:"ナ行",ty:"下二段",f:"未然形",c:"まずお前ら間違うだろ。終止形は「寝る」だって思ったろ？ちゃんと習ったことを当てはめろ！まずは覚えたリストにあるかないかだ。そうしたらどうするんだった？そうだ、ナイをつける。「寝ナイ」……エ段が出てきたな。下二段だ。なんと終止形は「ぬ」だ。原則通りにやればちゃんと出る。お前らド素人はまずは感覚ではなく、教わった手順通りにやるんだ！いいな！……そうすると、「ね」は２つの可能性がある。「ざら」ってわかんないかもしれないが、現代語の「ナイ」だ。「ナイ」をつけて出てくるのは、未然形が出てくるやつだよな。どうだ？ 頭使ったろ。",m:["覚えたリストにない！","寝ナイ → エ段 → 下二段","ね/ね/ぬ/ぬる/ぬれ/ねよ（終止形は「ぬ」！）","「ね」は２つ（未然 or 連用）","「ざら（ず）」の上 → 未然形"],a:"ナ行下二段・未然形"},
+// 3
+{p:"<span class='target'>寝</span>たるよしにて",g:"ナ行",ty:"下二段",f:"連用形",c:"活用の種類はすぐわかっただろ、ナ行下二段だ。ただやっぱり「ね」は２つあるから迷うよな。「たる（たりの変化したもの）」の上は連用形だ。この「たり」は現代語の「た」のご先祖さまだ。だったら当然連用形でつながるのもわかるってもんだ。",m:["覚えたリストにない！","寝ナイ → エ段 → 下二段","ね/ね/ぬ/ぬる/ぬれ/ねよ","「ね」は２つ（未然 or 連用）","「たり」の上 → 連用形"],a:"ナ行下二段・連用形"},
+// 4
+{p:"<span class='target'>待ちゐ</span>たるに",g:"ワ行",ty:"上一段",f:"連用形",c:"複合動詞だ。「待つ」と「ゐる」が合体している。下の「ゐる」だけ見るんだったよな。覚えたリストにある。ワ行上一段活用だ。未然形か連用形の２択だ。覚えているか？「たり」の上は連用形だ。",m:["複合動詞「待つ＋ゐる」→「ゐる」","覚えたリストにある！（上一段）","ゐ/ゐ/ゐる/ゐる/ゐれ/ゐよ","「ゐ」は２つ（未然 or 連用）","「たり」の上 → 連用形"],a:"ワ行上一段・連用形"},
+// 5
+{p:"おどろかせ<span class='target'>たまへ</span>。",g:"ハ行",ty:"四段",f:"命令形",c:"覚えたリストにない。たまはナイ。已然形か命令形の２択だ。ただ、こいつは後ろに大ヒントがある。「。」がついてる。文末だ。つまり命令形ということになる。",m:["覚えたリストにない！","たまはナイ → 四段","は/ひ/ふ/ふ/へ/へ","「へ」は２つ（已然 or 命令）","文末（。）＋２択 → 命令形"],a:"ハ行四段・命令形"},
+// 6
+{p:"<span class='target'>言ふ</span>を、",g:"ハ行",ty:"四段",f:"連体形",c:"覚えたリストにない、言はナイ。終止形か連体形の２択だ！素人は「文末じゃないから」って連体形くらいでも今はいい。もっと気の利いたやつは、後ろに「こと」が補える（あるいは省略されてる）って考えて「こと＝体言」の上は連体形って答えてやれ。",m:["覚えたリストにない！","言はナイ → 四段","は/ひ/ふ/ふ/へ/へ","「ふ」は２つ（終止 or 連体）","体言（こと）が補える → 連体形"],a:"ハ行四段・連体形"},
+// 7
+{p:"<span class='target'>思へ</span>ども",g:"ハ行",ty:"四段",f:"已然形",c:"覚えたリストにない、思はナイ。已然形か命令形の２択だ。文末じゃないから已然形、それでもいいだろう。だが、古語を変化させるときに習う「ズ／タリ／。／トキ／ドモ／！」を思い出してみろ。ドモは已然形を出すときに使うやつだよな！だから已然形って答えるのがいいだろう。",m:["覚えたリストにない！","思はナイ → 四段","は/ひ/ふ/ふ/へ/へ","「へ」は２つ（已然 or 命令）","「ども」の上 → 已然形"],a:"ハ行四段・已然形"},
+// 8
+{p:"ただ一度に<span class='target'>いらへ</span>むも",g:"ハ行",ty:"下二段",f:"未然形",c:"覚えたリストにない、いらへナイ。「いらふ」＝現代語の「答える」って知ってると、「答えナイ」と同じだから出しやすいよな。未然形か連用形の２択だな。あっさり答えたいなら「む」の上は未然形、を使う。あるいは、この子どもはもう答えたか？ 答えてないんだよな。この「まだしてない感」につかわれるのが未然形だ。漢字を見るとまだしてないってなんとなくわかるだろ？ 好きな方で答えろ。",m:["覚えたリストにない！","いらふ＝「答える」→ 答えナイ → エ段 → 下二段","へ/へ/ふ/ふる/ふれ/へよ","「へ」は２つ（未然 or 連用）","「む」の上 → 未然形"],a:"ハ行下二段・未然形"},
+// 9
+{p:"待ちけるかともぞ<span class='target'>思ふ</span>とて",g:"ハ行",ty:"四段",f:"連体形",c:"覚えたリストにない、思はナイ。終止形か連体形の２択だ！文末じゃないから連体形……ちょっと待て！「とて」ってあるよな。「と」があったら必ずすぐカギカッコを閉じろ！「待ちけるかともぞ思ふ。」とて。閉じると文末だってことがわかる！つまり終止形……としたいところだが、しかししかし！「ぞ」という係助詞が上にある！「係り結びの法則」で文末は連体形になるのだ！江戸時代の本居宣長が発見した、なんというひっかけ！　今の時点でこれができたやつは頭がおかしい、excellent！　係り結びによって連体形が正解だ！",m:["覚えたリストにない！","思はナイ → 四段","は/ひ/ふ/ふ/へ/へ","「ふ」は２つ（終止 or 連体）","「と」の前でカギ閉じ → 一見、文末で終止形","しかし上に係助詞「ぞ」→ 係り結びで連体形！"],a:"ハ行四段・連体形"},
+// 10
+{p:"<span class='target'>いらへ</span>むと",g:"ハ行",ty:"下二段",f:"未然形",c:"覚えたリストにない、いらへナイ。未然形か連用形の２択だ！「む」の上は未然形、もしくは「まだ答えてない感がある」から未然形。いずれにせよ答えは未然形だ。",m:["覚えたリストにない！","答えナイ → エ段 → 下二段","へ/へ/ふ/ふる/ふれ/へよ","「へ」は２つ（未然 or 連用）","「む」の上 → 未然形"],a:"ハ行下二段・未然形"},
+// 11
+{p:"<span class='target'>寝</span>たるほどに",g:"ナ行",ty:"下二段",f:"連用形",c:"覚えたリストにない、寝ナイ。未然形か連用形の２択だ。「たり」の上は連用形だ！",m:["覚えたリストにない！","寝ナイ → エ段 → 下二段","ね/ね/ぬ/ぬる/ぬれ/ねよ","「ね」は２つ（未然 or 連用）","「たり」の上 → 連用形"],a:"ナ行下二段・連用形"},
+// 12
+{p:"<span class='target'>言ふ</span>こゑのしければ",g:"ハ行",ty:"四段",f:"連体形",c:"覚えたリストにない、言はナイ。終止形か連体形の２択だ。ド素人は文末じゃないから連体形。ちょっとわかったやつなら「こゑ＝体言」で体言の上は連体形だ。",m:["覚えたリストにない！","言はナイ → 四段","は/ひ/ふ/ふ/へ/へ","「ふ」は２つ（終止 or 連体）","「こゑ」＝体言 → 連体形"],a:"ハ行四段・連体形"},
+// 13
+{p:"<span class='target'>起こせ</span>かしと",g:"サ行",ty:"四段",f:"命令形",c:"覚えたリストにない、起こさナイ。已然形か命令形の２択だ。起こせよ！っていうところなので命令形。「よ」が「かし」にあたるので無視するとよくわかる。",m:["覚えたリストにない！","起こさナイ → 四段","さ/し/す/す/せ/せ","「せ」は２つ（已然 or 命令）","「起こせよ！」の意 → 命令形（「かし」は強調）"],a:"サ行四段・命令形"},
+// 14
+{p:"<span class='target'>聞け</span>ば",g:"カ行",ty:"四段",f:"已然形",c:"覚えたリストにない、聞かナイ。已然形か命令形の２択だ。文末じゃないから命令形じゃない。もっとちゃんと知りたければ「ば」の上は未然形か已然形、これ覚えとけ。今回は「け」が活用表にあるからわかるな、未然形には「け」はない。だから已然形だ。",m:["覚えたリストにない！","聞かナイ → 四段","か/き/く/く/け/け","「け」は２つ（已然 or 命令）","「ば」の上 → 未然形 or 已然形","「け」は未然形にない → 已然形"],a:"カ行四段・已然形"},
+// 15
+{p:"<span class='target'>食ふ</span>音",g:"ハ行",ty:"四段",f:"連体形",c:"覚えたリストにない、食はナイ。終止形と連体形の２択だ。そろそろもう「体言の上だから連体形」こいつを使えるようになってもいい頃だな。",m:["覚えたリストにない！","食はナイ → 四段","は/ひ/ふ/ふ/へ/へ","「ふ」は２つ（終止 or 連体）","「音」＝体言 → 連体形"],a:"ハ行四段・連体形"},
+// 16
+{p:"<span class='target'>いらへ</span>たりければ",g:"ハ行",ty:"下二段",f:"連用形",c:"覚えたリストにない、いらへナイ（答えナイ）。未然形か連用形の２択だ。「たり」の上は連用形を使え。",m:["覚えたリストにない！","答えナイ → エ段 → 下二段","へ/へ/ふ/ふる/ふれ/へよ","「へ」は２つ（未然 or 連用）","「たり」の上 → 連用形"],a:"ハ行下二段・連用形"},
+// 17
+{p:"<span class='target'>わらふ</span>ことかぎりなし",g:"ハ行",ty:"四段",f:"連体形",c:"覚えたリストにない、わらはナイ。そろそろできたよな？「体言の上は連体形」だ。",m:["覚えたリストにない！","わらはナイ → 四段","は/ひ/ふ/ふ/へ/へ","「ふ」は２つ（終止 or 連体）","「こと」＝体言 → 連体形"],a:"ハ行四段・連体形"},
+];
+
+// ===== 第二章 第三部 追加問題データ =====
+var CH2_Q3=[
+// 1: あり (ラ変・終止形)
+{p:"古人も多く旅に死せる<span class='target'>あり</span>。",g:"ラ行",ty:"ラ変",f:"終止形",c:"覚えたリストにある、「あり」＝ラ変。「り」は活用表に２つあるから連用形か終止形の２択だ。文末「。」がついてる → 終止形！",m:["覚えたリストにある！（「あり」＝ラ変）","ら/り/り/る/れ/れ","「り」は２つ（連用 or 終止）","「。」の上 → 終止形"],a:"ラ変・終止形"},
+// 2: 使ひ (ハ四・連用)
+{p:"竹を取りつつ、よろづのことに<span class='target'>使ひ</span>けり。",g:"ハ行",ty:"四段",f:"連用形",c:null,m:["覚えたリストにない！","使はナイ → 四段","は/ひ/ふ/ふ/へ/へ","「ひ」は１つしかない → 連用形","（「けり」の上 → 連用形でも一発）"],a:"ハ行四段・連用形"},
+// 3: 似 (ナ上一・連用)
+{p:"鬼の生みたりければ、親に<span class='target'>似</span>て、",g:"ナ行",ty:"上一段",f:"連用形",c:"「似る」は覚えたリストのナ行上一段。「に」は活用表に２つあるが、「て」の上は連用形だ。",m:["覚えたリストにある！（「似る」＝ナ上一）","に/に/にる/にる/にれ/によ","「に」は２つ（未然 or 連用）","「て」の上 → 連用形"],a:"ナ行上一段・連用形"},
+// 4: 下り (ラ上二・連用) ※「下りナイ」イ段で上二段
+{p:"よろしきところに<span class='target'>下り</span>てゆく。",g:"ラ行",ty:"上二段",f:"連用形",c:"「下りナイ」、イ段が出るから上二段だ。下る：り/り/る/るる/るれ/りよ。「り」は２つ、「て」の上は連用形！",m:["覚えたリストにない！","下りナイ → イ段 → 上二段","り/り/る/るる/るれ/りよ","「り」は２つ（未然 or 連用）","「て」の上 → 連用形"],a:"ラ行上二段・連用形"},
+// 5: 死ぬる (ナ変・連体)
+{p:"病を受け、子生み、<span class='target'>死ぬる</span>ことのみ、機嫌をはからず。",g:"ナ行",ty:"ナ変",f:"連体形",c:"「死ぬ」は覚えたリストのナ変！　な/に/ぬ/ぬる/ぬれ/ね、「ぬる」は１つしかない → 連体形。「こと＝体言」の上でも一発だ。",m:["覚えたリストにある！（「死ぬ」＝ナ変）","な/に/ぬ/ぬる/ぬれ/ね","「ぬる」は１つしかない → 連体形","（「こと」体言の上 → 連体形でも一発）"],a:"ナ変・連体形"},
+// 6: 悔ゆれ (ヤ上二・已然)
+{p:"<span class='target'>悔ゆれ</span>ども取り返さるる齢ならねば、しけり。",g:"ヤ行",ty:"上二段",f:"已然形",c:"「悔いナイ」、イ段で上二段。悔ゆ：い/い/ゆ/ゆる/ゆれ/いよ。「ゆれ」は１つしかない → 已然形！「ども」の上は已然形でも一発だな。",m:["覚えたリストにない！","悔いナイ → イ段 → 上二段","い/い/ゆ/ゆる/ゆれ/いよ","「ゆれ」は１つしかない → 已然形","（「ども」の上 → 已然形でも一発）"],a:"ヤ行上二段・已然形"},
+// 7: 蹴れ (カ下一・已然) ※「蹴る」は唯一の下一段
+{p:"円子川<span class='target'>蹴れ</span>ばぞ波はあがりける。",g:"カ行",ty:"下一段",f:"已然形",c:"「蹴る」は古文で唯一の下一段だ！　覚えたリストにある特別なやつだぞ。け/け/ける/ける/けれ/けよ。「けれ」は１つしかない → 已然形！",m:["覚えたリストにある！（「蹴る」＝唯一の下一段）","け/け/ける/ける/けれ/けよ","「けれ」は１つしかない → 已然形","（「ば」の上 → 未然 or 已然 だが活用表で一択）"],a:"カ行下一段・已然形"},
+// 8: 受け (カ下二・未然)
+{p:"大きなる利を得んがために、少しきの利を<span class='target'>受け</span>ず。",g:"カ行",ty:"下二段",f:"未然形",c:"「受けナイ」、エ段で下二段。受く：け/け/く/くる/くれ/けよ。「け」は２つ、「ず」の上は未然形！",m:["覚えたリストにない！","受けナイ → エ段 → 下二段","け/け/く/くる/くれ/けよ","「け」は２つ（未然 or 連用）","「ず」の上 → 未然形"],a:"カ行下二段・未然形"},
+// 9: 出で来 (カ変複合・連用)
+{p:"都の辰巳より火<span class='target'>出で来</span>て、戌亥に至る。",g:"カ行",ty:"カ変",f:"連用形",c:"「出づ」と「く」の複合動詞だ。下の「く」だけ見る。覚えたリストにある、カ変。こ/き/く/くる/くれ/こ・こよ。「き」は１つしかない → 連用形。「て」の上でも一発だ。",m:["複合動詞「出づ＋く」→「く」","覚えたリストにある！（カ変）","こ/き/く/くる/くれ/こ・こよ","「き」は１つしかない → 連用形","（「て」の上 → 連用形でも一発）"],a:"カ変・連用形"},
+// 10: 忘るる (ラ下二・連体)
+{p:"年月経ても、つゆ<span class='target'>忘るる</span>にはあらねど、",g:"ラ行",ty:"下二段",f:"連体形",c:"「忘れナイ」、エ段で下二段。忘る：れ/れ/る/るる/るれ/れよ。「るる」は１つしかない → 連体形！",m:["覚えたリストにない！","忘れナイ → エ段 → 下二段","れ/れ/る/るる/るれ/れよ","「るる」は１つしかない → 連体形"],a:"ラ行下二段・連体形"},
+
+// 11: おはする (サ変・連体)
+{p:"竹の中に<span class='target'>おはする</span>にて知りぬ。",g:"サ行",ty:"サ変",f:"連体形",c:"「おはす」は覚えたリストのサ変！　せ/し/す/する/すれ/せよ。「する」は１つしかない → 連体形だ。",m:["覚えたリストにある！（「おはす」＝サ変）","せ/し/す/する/すれ/せよ","「する」は１つしかない → 連体形"],a:"サ変・連体形"},
+// 12: 閉ぢ (ダ上二・連用)
+{p:"予は口を<span class='target'>閉ぢ</span>て、眠らんとして寝ねられず。",g:"ダ行",ty:"上二段",f:"連用形",c:"「閉ぢナイ」、イ段で上二段。閉づ：ぢ/ぢ/づ/づる/づれ/ぢよ。「ぢ」は２つ、「て」の上 → 連用形。",m:["覚えたリストにない！","閉ぢナイ → イ段 → 上二段","ぢ/ぢ/づ/づる/づれ/ぢよ","「ぢ」は２つ（未然 or 連用）","「て」の上 → 連用形"],a:"ダ行上二段・連用形"},
+// 13: 侍る (ラ変・連体, 係り結び！)
+{p:"子孫おはせぬぞよく<span class='target'>侍る</span>。",g:"ラ行",ty:"ラ変",f:"連体形",c:"「侍り」は覚えたリストのラ変。ら/り/り/る/れ/れ、「る」は１つしかないから本当は連体形で一択だ。だが気を付けたいのは「。」がついてること！　文末なら本来は終止形になりそうだが……しかししかし！上に係助詞「ぞ」がある！　係り結びの法則で文末が連体形になるのだ！　第二部でやったやつだぞ、思い出せ。今回は活用表で一択だから結果オーライだが、「ぞ」を見たら「係り結び＝連体形」を意識する習慣をつけろ！",m:["覚えたリストにある！（「侍り」＝ラ変）","ら/り/り/る/れ/れ","「る」は１つしかない → 連体形（一択）","「。」だが上に「ぞ」→ 係り結びでも連体形！"],a:"ラ変・連体形"},
+// 14: 用ゐる (ワ上一・連体)
+{p:"異用に<span class='target'>用ゐる</span>ことなくて、そのあし皆になりにけり。",g:"ワ行",ty:"上一段",f:"連体形",c:"「ゐる」は覚えたリストのワ行上一段。ゐ/ゐ/ゐる/ゐる/ゐれ/ゐよ。「ゐる」は２つ、「こと＝体言」の上 → 連体形！",m:["覚えたリストにある！（「ゐる」＝ワ上一）","ゐ/ゐ/ゐる/ゐる/ゐれ/ゐよ","「ゐる」は２つ（終止 or 連体）","「こと」体言の上 → 連体形"],a:"ワ行上一段・連体形"},
+// 15: せよ (サ変・命令)
+{p:"かたちを改め、齢を若く<span class='target'>せよ</span>とにはあらず。",g:"サ行",ty:"サ変",f:"命令形",c:"「す」は覚えたリストのサ変！　せ/し/す/する/すれ/せよ。「せよ」は１つしかない → 命令形だ。",m:["覚えたリストにある！（「す」＝サ変）","せ/し/す/する/すれ/せよ","「せよ」は１つしかない → 命令形"],a:"サ変・命令形"},
+// 16: 落つ (タ上二・終止)
+{p:"易く思へば、必ず<span class='target'>落つ</span>と侍るやらん。",g:"タ行",ty:"上二段",f:"終止形",c:"「落ちナイ」、イ段で上二段。落つ：ち/ち/つ/つる/つれ/ちよ。「つ」は１つしかない → 終止形（一択）！　ちなみに「と」があったらカギカッコを閉じろのテクニックも使えるぞ。「落つ。」とで文末確定 → 終止形でも一発だ。",m:["覚えたリストにない！","落ちナイ → イ段 → 上二段","ち/ち/つ/つる/つれ/ちよ","「つ」は１つしかない → 終止形（一択）","（「と」前カギ閉じ「落つ。」とで文末でも一発）"],a:"タ行上二段・終止形"},
+// 17: ある (ラ変・連体)
+{p:"都の中に多き人死なざる日は<span class='target'>ある</span>べからず。",g:"ラ行",ty:"ラ変",f:"連体形",c:"「あり」覚えたリスト→ラ変。ら/り/り/る/れ/れ。「る」は１つしかない → 連体形（一択）！",m:["覚えたリストにある！（「あり」＝ラ変）","ら/り/り/る/れ/れ","「る」は１つしかない → 連体形（一択）"],a:"ラ変・連体形"},
+// 18: 据ゑ (ワ下二・連用)
+{p:"かきつばたといふ五文字を句の上に<span class='target'>据ゑ</span>て、",g:"ワ行",ty:"下二段",f:"連用形",c:"「据ゑナイ」、エ段で下二段。据う：ゑ/ゑ/う/うる/うれ/ゑよ。「ゑ」は２つ、「て」の上 → 連用形。",m:["覚えたリストにない！","据ゑナイ → エ段 → 下二段","ゑ/ゑ/う/うる/うれ/ゑよ","「ゑ」は２つ（未然 or 連用）","「て」の上 → 連用形"],a:"ワ行下二段・連用形"},
+// 19: 射 (ヤ上一・未然)
+{p:"念じて<span class='target'>射</span>むとすれども、",g:"ヤ行",ty:"上一段",f:"未然形",c:"「射る」は覚えたリストのヤ行上一段。い/い/いる/いる/いれ/いよ。「い」は２つ、「む」の上は未然形！",m:["覚えたリストにある！（「射る」＝ヤ上一）","い/い/いる/いる/いれ/いよ","「い」は２つ（未然 or 連用）","「む」の上 → 未然形"],a:"ヤ行上一段・未然形"},
+// 20: 見つくる (カ下二・連体)
+{p:"よごとに黄金ある竹を<span class='target'>見つくる</span>こと重なりぬ。",g:"カ行",ty:"下二段",f:"連体形",c:"「見つけナイ」、エ段で下二段。見つく：け/け/く/くる/くれ/けよ。「くる」は１つしかない → 連体形。「こと＝体言」の上でも一発だ。",m:["覚えたリストにない！","見つけナイ → エ段 → 下二段","け/け/く/くる/くれ/けよ","「くる」は１つしかない → 連体形","（「こと」体言の上 → 連体形でも一発）"],a:"カ行下二段・連体形"},
+];
+
+// ===== UNLOCK SYSTEM =====
+const ALL_UIDS=['lec1','p1a','p1b','lec2','p2a','p2b','p3a','p3b'];
+const DEFAULT_U=['lec1','p3a','p3b'];
+function getU(){try{const s=localStorage.getItem('katsuyou_ch2_u');if(!s)return[...DEFAULT_U];const a=JSON.parse(s);DEFAULT_U.forEach(d=>{if(!a.includes(d))a.push(d);});return a;}catch(e){return[...DEFAULT_U];}}
+function saveU(a){try{localStorage.setItem('katsuyou_ch2_u',JSON.stringify(a));}catch(e){}}
+function doUnlock(id){const u=getU();if(!u.includes(id)){u.push(id);saveU(u);}buildMenu();}
+function isUL(id){return getU().includes(id);}
+function unlockAll(){saveU([...ALL_UIDS]);buildMenu();showMenu();}
+function resetLocks(){saveU([...DEFAULT_U]);buildMenu();window.scrollTo(0,0);}
+
+// ===== MENU =====
+var lastSec='';
+function buildMenu(){
+  const c=document.getElementById('menu-content');c.innerHTML='';
+  const bar=document.createElement('div');bar.className='unlock-bar';
+  const ub=document.createElement('button');ub.className='unlock-btn';ub.textContent='🔓 リピーター用ロック解除';ub.onclick=unlockAll;
+  const rb=document.createElement('button');rb.className='unlock-btn';rb.textContent='🔒 リセット';rb.onclick=()=>{if(confirm('進捗をリセットしますか？'))resetLocks();};
+  bar.appendChild(ub);bar.appendChild(rb);c.appendChild(bar);
+
+  addSec(c,'sec-part1','📖 第一部','vn-h',[
+    {cls:'vn',label:'講義 1',title:'活用表が書ければ即わかる！',uid:'lec1',fn:()=>{lastSec='sec-part1';startVN(0);}},
+    {cls:'training',label:'練習 1-1',title:'第一部 前半（13問）',uid:'p1a',fn:()=>{lastSec='sec-part1';startCh2('1a');}},
+    {cls:'training',label:'練習 1-2',title:'第一部 後半（13問）',uid:'p1b',fn:()=>{lastSec='sec-part1';startCh2('1b');}},
+  ]);
+  addSec(c,'sec-part2','📖 第二部','vn-h',[
+    {cls:'vn',label:'講義 2',title:'2択を見抜くテクニック！',uid:'lec2',fn:()=>{lastSec='sec-part2';startVN(1);}},
+    {cls:'training',label:'練習 2-1',title:'第二部 前半（9問）',uid:'p2a',fn:()=>{lastSec='sec-part2';startCh2('2a');}},
+    {cls:'training',label:'練習 2-2',title:'第二部 後半（8問）',uid:'p2b',fn:()=>{lastSec='sec-part2';startCh2('2b');}},
+  ]);
+  addSec(c,'sec-part3','✨ 第三部　追加問題','vn-h',[
+    {cls:'training',label:'練習 3-1',title:'追加問題 前半（10問）',uid:'p3a',fn:()=>{lastSec='sec-part3';startCh2('3a');}},
+    {cls:'training',label:'練習 3-2',title:'追加問題 後半（10問）',uid:'p3b',fn:()=>{lastSec='sec-part3';startCh2('3b');}},
+  ]);
+}
+function addSec(c,id,ht,hc,items){const h=document.createElement('div');h.className='section-header '+hc;h.id=id;h.textContent=ht;c.appendChild(h);const l=document.createElement('div');l.className='level-list';items.forEach(it=>{const b=document.createElement('button');const locked=it.uid&&!isUL(it.uid);b.className='level-btn '+it.cls+(locked?' locked':'');b.innerHTML=`<span class="level-label">${it.label}</span>${it.title}`;if(!locked)b.onclick=it.fn;l.appendChild(b);});c.appendChild(l);}
+function hideAll(){['menu','vn','ch2'].forEach(id=>document.getElementById(id).style.display='none');}
+function showMenu(){hideAll();document.getElementById('menu').style.display='flex';if(lastSec){setTimeout(()=>{const el=document.getElementById(lastSec);if(el)el.scrollIntoView({behavior:'smooth',block:'start'});},50);}}
+
+// ===== VISUAL NOVEL SCRIPTS =====
+// 問題は q3:{...} 形式で埋め込む。問題の前に setup を置かない（ユーザー指示）。
+// 代わりに問題の間や章の切れ目に桜木節のアドリブを入れる。
+var VN_SCRIPTS=[
+// ===== 第一部 =====
+[
+{s:"桜木",t:"よお、活用表は書けるようになったか？"},
+{s:"桜木",t:"活用表が書ければできるやつ、いくぞ。",b:"第二章 第一部\n活用表が書ければ即わかる！"},
+{s:"桜木",t:"古文の中に動詞が出てくる。それの「行・活用の種類・活用形」を当てるんだ。"},
+{s:"桜木",t:"手順を思い出せ。①覚えたリスト確認 ②ナイをつける ③活用表を書く ④形を見る。",b:"基本手順を守れ！"},
+{s:"桜木",t:"まずはヒント無しで解いてみろ。間違えてもいい。「解説を聞く」で俺が全部教えてやる。"},
+{s:"桜木",t:"じゃあ問題だ。行ってこい！"},
+{s:"桜木",q3:CH2_Q1[0]},
+{s:"桜木",q3:CH2_Q1[1]},
+{s:"桜木",q3:CH2_Q1[3]},
+{s:"桜木",q3:CH2_Q1[6]},
+{s:"桜木",t:"どうだ、ショートカット便利だろ？ これから効いてくるぞ。"},
+{s:"桜木",q3:CH2_Q1[7]},
+{s:"桜木",q3:CH2_Q1[9]},
+{s:"桜木",q3:CH2_Q1[10]},
+{s:"桜木",q3:CH2_Q1[11]},
+{s:"桜木",q3:CH2_Q1[13]},
+{s:"桜木",q3:CH2_Q1[14]},
+{s:"桜木",t:"まだまだいくぞ。集中を切らすな。"},
+{s:"桜木",q3:CH2_Q1[16]},
+{s:"桜木",q3:CH2_Q1[17]},
+{s:"桜木",t:"濁っただけでサ変。忘れるな。次いくぞ。"},
+{s:"桜木",q3:CH2_Q1[18]},
+{s:"桜木",q3:CH2_Q1[20]},
+{s:"桜木",q3:CH2_Q1[22]},
+{s:"桜木",q3:CH2_Q1[23]},
+{s:"桜木",q3:CH2_Q1[24]},
+{s:"桜木",t:"よし、第一部の講義はここまでだ。",b:"第一部 完了\n練習問題で実力チェック！"},
+{s:"桜木",t:"練習問題で残りの問題も含めて全部叩き込め！ 行ってこい！"},
+],
+// ===== 第二部 =====
+[
+{s:"桜木",t:"どうやらまじめに練習しているようだな。"},
+{s:"桜木",t:"今回は上級編だ。活用表が書けても２択になるやつら……",b:"第二章 第二部\n２択を見抜く！"},
+{s:"桜木",t:"そいつらを見分けるとっておきの知識を教えてやる。"},
+{s:"桜木",t:"ここまでできて、やっと中間試験を楽に迎えられるからな。心して聴け。"},
+{s:"桜木",t:"前と同じ、まずは挑戦。間違えたら「解説を聞く」で技を覚えろ。"},
+{s:"桜木",q3:CH2_Q2[0]},
+{s:"桜木",q3:CH2_Q2[1]},
+{s:"桜木",q3:CH2_Q2[2]},
+{s:"桜木",q3:CH2_Q2[3]},
+{s:"桜木",t:"ここから文末ヒント、接続ヒント、体言ヒント……どんどん道具箱にぶち込んでけ。"},
+{s:"桜木",q3:CH2_Q2[4]},
+{s:"桜木",q3:CH2_Q2[5]},
+{s:"桜木",q3:CH2_Q2[6]},
+{s:"桜木",q3:CH2_Q2[7]},
+{s:"桜木",q3:CH2_Q2[8]},
+{s:"桜木",t:"「と」を見たらカギカッコ閉じる。これは使える。覚えたな？"},
+{s:"桜木",q3:CH2_Q2[9]},
+{s:"桜木",q3:CH2_Q2[10]},
+{s:"桜木",q3:CH2_Q2[11]},
+{s:"桜木",q3:CH2_Q2[12]},
+{s:"桜木",q3:CH2_Q2[13]},
+{s:"桜木",q3:CH2_Q2[14]},
+{s:"桜木",q3:CH2_Q2[15]},
+{s:"桜木",q3:CH2_Q2[16]},
+{s:"桜木",t:"よし、これで第二章は終わりだ。",b:"第二章 完了！\n中間試験は楽勝だ"},
+{s:"桜木",t:"接続の覚え方をもう一度まとめとくぞ。",b:"ズ→未然\nタリ→連用\n。→終止\nトキ→連体\nドモ→已然\n！→命令"},
+{s:"桜木",t:"あとは「けり」「て」「む」「ば」「と」のショートカットも忘れるな。"},
+{s:"桜木",t:"練習問題で第二部の感覚を磨いてこい！"},
+],
+];
+
+// ===== VN エンジン =====
+var vnIdx=0,vnScript=[],curVNid=0,vnQ3State=null;
+function startVN(scriptId){
+  curVNid=scriptId;
+  hideAll();document.getElementById('vn').style.display='flex';
+  vnScript=[...VN_SCRIPTS[scriptId]];vnIdx=0;vnQ3State=null;vnRender();
+}
+function exitVN(){showMenu();}
+function vnPrev(){if(vnIdx>0){vnIdx--;vnQ3State=null;vnRender();}document.getElementById('vn-dialog').scrollTop=0;}
+function vnNext(){
+  vnIdx++;
+  if(vnIdx>=vnScript.length){
+    if(curVNid===0){doUnlock('p1a');doUnlock('p1b');}
+    if(curVNid===1){doUnlock('p2a');doUnlock('p2b');}
+    showMenu();return;
+  }
+  vnQ3State=null;
+  vnRender();
+  document.getElementById('vn-dialog').scrollTop=0;
+}
+
+const Q3_STEPS=[
+  {label:'① 行は？',opts:GYOU_OPTS,key:'g',cls:''},
+  {label:'② 活用の種類は？',opts:TYPE_OPTS,key:'ty',cls:'t-type'},
+  {label:'③ 活用形は？',opts:FORM_OPTS,key:'f',cls:'t-form'},
+];
+const Q3_OK=["完璧だ！","よくできた。","パチパチパチ。","できてきてるじゃないか。","もう講義は必要ないか？","エクセレント。","さすがだな。","やるじゃないか。","正解だ。","素晴らしい。","調子が出てきたな。","いいぞその調子だ。","お見事。","ナイス。"];
+const Q3_NG=["焦るな。","まだ難しくても大丈夫だ。","おっと凡ミス。","引っかかったな。","落ち着け。","しっかり講義についてこい。","あちゃー。","おい！間違えだ！","バカもの！","落ち着いて考えろ。","次はがんばってみよう。","まだまだだな。","惜しい！"];
+function pickR(arr){return arr[Math.floor(Math.random()*arr.length)];}
+
+// 3段階ピル表示
+function pillsHtml(results){
+  if(results.length===0)return '';
+  const labels=['行','種類','形'];
+  let h='<div class="ch2-answered">';
+  for(let i=0;i<results.length;i++){
+    const r=results[i];
+    if(r.ok)h+=`<span class="ch2-pill ok">${labels[i]} ${r.val} ✓</span>`;
+    else h+=`<span class="ch2-pill ng">${labels[i]} ${r.val} ✗→${r.correct}</span>`;
+  }
+  h+='</div>';
+  return h;
+}
+
+// 解説パネル（メモ＋答え）
+function explHtml(q){
+  let h='<div class="q3-expl">';
+  if(q.c){h+=`<div class="q3-commentary">${q.c}</div>`;}
+  h+='<div class="q3-memo">';
+  for(const line of q.m){
+    // →で分割して後半を結論ハイライト
+    const parts=line.split(' → ');
+    if(parts.length>=2){
+      const body=parts.slice(0,-1).join(' → ');
+      const concl=parts[parts.length-1];
+      h+=`<div class="q3-memo-line">${body}<span class="arrow"> → </span><span class="concl">${concl}</span></div>`;
+    } else {
+      h+=`<div class="q3-memo-line">${line}</div>`;
+    }
+  }
+  h+='</div>';
+  h+=`<div class="q3-answer">✅ ${q.a}</div>`;
+  h+='</div>';
+  return h;
+}
+
+function vnRender(){
+  const line=vnScript[vnIdx];
+  const sp=document.getElementById('vn-speaker');
+  const tx=document.getElementById('vn-text');
+  const board=document.getElementById('vn-board');
+  const boardTx=document.getElementById('vn-board-text');
+  const chara=document.getElementById('vn-chara');
+  const prog=document.getElementById('vn-progress');
+  const dialog=document.getElementById('vn-dialog');
+
+  if(line.s==="桜木"){sp.textContent="桜木マサムネ";sp.className='vn-speaker sakuragi';chara.innerHTML='<div class="vn-chara-icon">🔥</div>';}
+  else{sp.textContent="";sp.className='vn-speaker narrator';chara.innerHTML='';}
+
+  // q3 ノード
+  if(line.q3){
+    dialog.onclick=null;
+    document.querySelector('.vn-tap-hint').style.display='none';
+    if(line.b){board.style.display='flex';boardTx.textContent=line.b;}else{board.style.display='none';}
+    vnQ3State={q:line.q3,step:0,results:[],phase:'quiz',reaction:null,reactionOk:false};
+    vnQ3Render();
+    prog.style.width=((vnIdx+1)/vnScript.length*100)+'%';
+    return;
+  }
+
+  // 通常セリフ
+  dialog.onclick=vnNext;
+  document.querySelector('.vn-tap-hint').style.display='block';
+  tx.innerHTML=`<div>${line.t||''}</div>`;
+  if(line.b){board.style.display='flex';boardTx.textContent=line.b;}else{board.style.display='none';}
+  prog.style.width=((vnIdx+1)/vnScript.length*100)+'%';
+}
+
+function vnQ3Render(){
+  const st=vnQ3State;
+  const q=st.q;
+  const tx=document.getElementById('vn-text');
+  let html=`<div class="vn-passage">${q.p}</div>`;
+  html+=pillsHtml(st.results);
+
+  if(st.reaction){
+    html+=`<div style="text-align:center;color:${st.reactionOk?'var(--correct)':'var(--wrong)'};font-weight:700;margin:0.4rem 0;font-size:clamp(0.95rem,2.5vw,1.15rem)">${st.reaction}</div>`;
+    st.reaction=null;
+  }
+
+  if(st.phase==='quiz'){
+    if(st.step<3){
+      const s=Q3_STEPS[st.step];
+      html+=`<div class="ch2-step-label">${s.label}</div>`;
+      html+=`<div class="ch2-options ${s.cls}">${s.opts.map(o=>`<button class="ch2-opt" onclick="vnQ3Pick('${o}')">${o}</button>`).join('')}</div>`;
+    } else {
+      html+=`<button class="ch2-listen" onclick="event.stopPropagation();vnQ3Done()">▶ 解説を聞く</button>`;
+    }
+  } else {
+    // explain phase
+    html+=explHtml(q);
+  }
+
+  tx.innerHTML=html;
+}
+
+function vnQ3Pick(val){
+  const st=vnQ3State;
+  const q=st.q;
+  const k=Q3_STEPS[st.step].key;
+  const correct=val===q[k];
+  const btns=document.querySelectorAll('.ch2-opt');
+  btns.forEach(b=>{
+    if(b.textContent===val)b.classList.add(correct?'ch2-ok':'ch2-ng');
+    else if(b.textContent===q[k]&&!correct)b.classList.add('ch2-ok');
+    b.onclick=null;
+  });
+  if(correct){playPing();st.reaction=pickR(Q3_OK);st.reactionOk=true;}
+  else{playBuzz();st.reaction=pickR(Q3_NG);st.reactionOk=false;}
+  st.results.push({val,correct:q[k],ok:correct});
+  setTimeout(()=>{st.step++;vnQ3Render();},700);
+}
+
+function vnQ3Done(){
+  // 解説フェーズへ遷移。タップで次の VN ノードへ進める。
+  vnQ3State.phase='explain';
+  vnQ3Render();
+  document.getElementById('vn-dialog').onclick=vnNext;
+  document.querySelector('.vn-tap-hint').style.display='block';
+}
+
+// ===== 練習クイズ =====
+var ch2Pool=[],ch2Idx=0,ch2Cur=null,ch2Step=0,ch2Score=0,ch2Total=0,ch2Tag='';
+var ch2Wrong=[],ch2Part='1a',ch2CurWrong=false,ch2Results=[],ch2Phase='quiz',ch2WrongSnapshot=[];
+function startCh2(part,retryData){
+  hideAll();document.getElementById('ch2').style.display='flex';
+  // 第一部 26問 を 13+13 に分割、第二部 17問 を 9+8 に分割
+  const sets={
+    '1a':CH2_Q1.slice(0,13),
+    '1b':CH2_Q1.slice(13),
+    '2a':CH2_Q2.slice(0,9),
+    '2b':CH2_Q2.slice(9),
+    '3a':CH2_Q3.slice(0,10),
+    '3b':CH2_Q3.slice(10),
+  };
+  const labels={'1a':'第一部 練習 前半','1b':'第一部 練習 後半','2a':'第二部 練習 前半','2b':'第二部 練習 後半','3a':'第三部 追加問題 前半','3b':'第三部 追加問題 後半'};
+  ch2Tag=labels[part]||'練習';
+  document.getElementById('ch2-tag').textContent=ch2Tag;
+  ch2Pool=retryData?[...retryData]:[...sets[part]];
+  ch2Idx=0;ch2Score=0;ch2Total=0;ch2Part=part;ch2Wrong=[];
+  ch2NextQ();
+}
+function exitCh2(){showMenu();}
+function ch2NextQ(){
+  if(ch2Idx>=ch2Pool.length){ch2End();return;}
+  ch2Cur=ch2Pool[ch2Idx];ch2Step=0;ch2Results=[];ch2CurWrong=false;ch2Phase='quiz';
+  document.getElementById('ch2-progress').textContent=`問題 ${ch2Idx+1} / ${ch2Pool.length}`;
+  ch2Render();
+}
+function ch2Render(){
+  const body=document.getElementById('ch2-body');
+  let html=`<div class="ch2-passage">${ch2Cur.p}</div>`;
+  html+=pillsHtml(ch2Results);
+
+  if(ch2Phase==='quiz'){
+    if(ch2Step<3){
+      const s=Q3_STEPS[ch2Step];
+      html+=`<div class="ch2-step-label">${s.label}</div>`;
+      html+=`<div class="ch2-options ${s.cls}">${s.opts.map(o=>`<button class="ch2-opt" onclick="ch2Pick('${o}')">${o}</button>`).join('')}</div>`;
+    } else {
+      html+=`<button class="ch2-listen" onclick="ch2ShowExpl()">▶ 解説を聞く</button>`;
+    }
+  } else {
+    html+=explHtml(ch2Cur);
+    html+=`<button class="ch2-next" onclick="ch2Idx++;ch2NextQ();">${ch2Idx+1>=ch2Pool.length?'結果を見る！':'次へ →'}</button>`;
+  }
+  body.innerHTML=html;
+}
+function ch2Pick(val){
+  const k=Q3_STEPS[ch2Step].key;
+  ch2Total++;
+  const ok=val===ch2Cur[k];
+  if(ok)ch2Score++;
+  const btns=document.querySelectorAll('.ch2-opt');
+  btns.forEach(b=>{
+    if(b.textContent===val)b.classList.add(ok?'ch2-ok':'ch2-ng');
+    else if(b.textContent===ch2Cur[k]&&!ok)b.classList.add('ch2-ok');
+    b.onclick=null;
+  });
+  if(ok)playPing();else{playBuzz();ch2CurWrong=true;}
+  ch2Results.push({val,correct:ch2Cur[k],ok});
+  if(!ok&&!ch2Wrong.includes(ch2Cur))ch2Wrong.push(ch2Cur);
+  setTimeout(()=>{ch2Step++;ch2Render();},700);
+}
+function ch2ShowExpl(){ch2Phase='explain';ch2Render();}
+function ch2End(){
+  const body=document.getElementById('ch2-body');
+  const pct=Math.round(ch2Score/ch2Total*100);
+  let msg='',icon='';
+  if(pct>=90){msg='完璧だ！';icon='🏆';}
+  else if(pct>=70){msg='よし、合格ライン！';icon='🎉';}
+  else if(pct>=50){msg='半分は越えたな。もう一周しよう。';icon='💪';}
+  else{msg='まだまだ。講義を見直すんだ。';icon='📖';}
+  if(ch2Part==='1b'&&pct>=70)doUnlock('lec2');
+  const isFinale=(ch2Part==='2b'&&pct>=90);
+  ch2WrongSnapshot=[...ch2Wrong];
+  let retryBtn='';
+  if(ch2WrongSnapshot.length>0){
+    retryBtn=`<button class="result-btn retry" style="background:linear-gradient(135deg,#e040fb,#7c4dff)" onclick="startCh2('${ch2Part}',ch2WrongSnapshot)">間違えた ${ch2WrongSnapshot.length} 問をもう一度</button>`;
+  }
+  const finaleHtml=isFinale?`<div style="font-family:'Bungee Shade',cursive;font-size:clamp(1.3rem,4.5vw,2rem);color:#e040fb;text-shadow:0 0 20px rgba(224,64,251,0.5);margin:0.8rem 0 0.3rem;letter-spacing:2px">第二章 完全制覇</div><div style="font-size:0.85rem;color:var(--text-dim);margin-bottom:0.5rem">中間試験、見ててろ！</div>`:'';
+  body.innerHTML=`<div class="ch2-final"><div style="font-size:4rem;margin-bottom:0.5rem">${icon}</div>${finaleHtml}<div style="font-family:'Dela Gothic One',cursive;font-size:2rem;color:var(--accent2);margin-bottom:0.5rem">正答率 ${pct}%</div><div style="font-size:0.9rem;color:var(--text-dim);margin-bottom:0.3rem">（正解 ${ch2Score} / 試行 ${ch2Total}）</div><div style="font-size:1rem;color:var(--text);margin:1rem 0 1.5rem;line-height:1.6">${msg}</div><div class="result-buttons">${retryBtn}<button class="result-btn retry" onclick="startCh2('${ch2Part}')">もう一回！</button><button class="result-btn menu" onclick="showMenu()">メニューへ</button></div></div>`;
+  if(pct>=70){playOK();launchConfetti();if(isFinale){setTimeout(launchConfetti,600);setTimeout(launchConfetti,1200);}}else{playNG();}
+}
+
+// ===== EFFECTS =====
+function launchConfetti(){const cols=['#ff3d6a','#ffb800','#00e676','#448aff','#e040fb','#ff6d00','#76ff03'];for(let i=0;i<60;i++){setTimeout(()=>{const p=document.createElement('div');p.className='confetti-piece';p.style.left=Math.random()*100+'vw';p.style.top='-10px';p.style.background=cols[Math.floor(Math.random()*cols.length)];p.style.borderRadius=Math.random()>0.5?'50%':'2px';const s=Math.random()*8+6;p.style.width=s+'px';p.style.height=s+'px';document.body.appendChild(p);p.animate([{transform:'translateY(0) translateX(0) rotate(0deg)',opacity:1},{transform:`translateY(100vh) translateX(${(Math.random()-0.5)*200}px) rotate(${Math.random()*720}deg)`,opacity:0}],{duration:Math.random()*1500+1500,easing:'ease-out',fill:'forwards'}).onfinish=()=>p.remove();},i*30);}const f=document.createElement('div');f.style.cssText='position:fixed;inset:0;z-index:152;background:radial-gradient(circle,rgba(255,255,255,0.4) 0%,transparent 70%);pointer-events:none;';document.body.appendChild(f);f.animate([{opacity:1},{opacity:0}],{duration:600,fill:'forwards'}).onfinish=()=>f.remove();}
+(function(){const c=document.getElementById('bg-particles');for(let i=0;i<8;i++){const p=document.createElement('div');p.className='bg-particle';const s=Math.random()*6+3;p.style.width=s+'px';p.style.height=s+'px';p.style.left=Math.random()*100+'%';p.style.animationDelay=Math.random()*15+'s';p.style.animationDuration=(Math.random()*10+12)+'s';c.appendChild(p);}})();
+buildMenu();
+if('serviceWorker' in navigator){navigator.serviceWorker.register('sw.js').catch(()=>{});}
+</script>
+</body>
+</html>
