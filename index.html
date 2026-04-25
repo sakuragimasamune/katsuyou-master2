@@ -274,7 +274,7 @@ var CH2_Q3=[
 
 // ===== UNLOCK SYSTEM =====
 const ALL_UIDS=['lec1','p1a','p1b','lec2','p2a','p2b','p3a','p3b'];
-const DEFAULT_U=['lec1','p3a','p3b'];
+const DEFAULT_U=['lec1','lec2','p3a','p3b'];
 function getU(){try{const s=localStorage.getItem('katsuyou_ch2_u');if(!s)return[...DEFAULT_U];const a=JSON.parse(s);DEFAULT_U.forEach(d=>{if(!a.includes(d))a.push(d);});return a;}catch(e){return[...DEFAULT_U];}}
 function saveU(a){try{localStorage.setItem('katsuyou_ch2_u',JSON.stringify(a));}catch(e){}}
 function doUnlock(id){const u=getU();if(!u.includes(id)){u.push(id);saveU(u);}buildMenu();}
